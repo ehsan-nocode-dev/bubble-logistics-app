@@ -1,0 +1,18 @@
+{
+  "name": "bubble-seeder",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Repeatable Bubble Data API seeder with relationships, batching, and wipe.",
+  "main": "seed-bubble.mjs",
+  "scripts": {
+    "make-config": "node make-config.mjs",
+    "seed": "node seed-bubble.mjs --config config.json",
+    "wipe": "node seed-bubble.mjs --config config.json --wipe"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^8.4.1",
+    "axios": "^1.6.8",
+    "p-limit": "^5.0.0",
+    "yargs": "^17.7.2"
+  }
+}
