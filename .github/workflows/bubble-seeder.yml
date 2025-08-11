@@ -1,0 +1,74 @@
+name: Bubble Seeder
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "seed or wipe"
+        required: true
+        default: "seed"
+        type: choice
+        options: [seed, wipe]
+      base_url:
+        description: "Bubble app base URL"
+        required: true
+        default: "https://logistics-app-10761.bubbleapps.io"
+      env:
+        description: "dev adds /version-test; use live for production"
+        required: true
+        default: "dev"
+      admin_count:
+        description: "How many Admin users"
+        required: true
+        default: "1"
+      customer_count:
+        description: "How many Customers"
+        required: true
+        default: "9"
+      provider_count:
+        description: "How many Service Providers"
+        required: true
+        default: "10"
+      batch_size:
+        description: "Parallel requests"
+        required: true
+        default: "5"
+      throttle_ms:
+        description: "Delay between creates (ms)"
+        required: true
+        default: "100"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build config.json from inputs
+        env:
+          BUBBLE_API_TOKEN: ${{ secrets.BUBBLE_API_TOKEN }}
+          BUBBLE_BASE_URL: ${{ github.event.inputs.base_url }}
+          BUBBLE_ENV: ${{ github.event.inputs.env }}
+          ADMIN_COUNT: ${{ github.event.inputs.admin_count }}
+          CUSTOMER_COUNT: ${{ github.event.inputs.customer_count }}
+          PROVIDER_COUNT: ${{ github.event.inputs.provider_count }}
+          BATCH_SIZE: ${{ github.event.inputs.batch_size }}
+          THROTTLE_MS: ${{ github.event.inputs.throttle_ms }}
+        run: npm run make-config
+
+      - name: Run seeder
+        if: ${{ github.event.inputs.mode == 'seed' }}
+        run: npm run seed
+
+      - name: Run wipe
+        if: ${{ github.event.inputs.mode == 'wipe' }}
+        run: npm run wipe
